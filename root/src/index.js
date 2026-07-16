@@ -1,51 +1,86 @@
+async function getDataset(env) {
+  const raw = await env.DATA.get('dataset');
+  return raw ? JSON.parse(raw) : null;
+}
+
+async function getAllTicks(env) {
+  const ticks = {};
+  let cursor;
+  for (;;) {
+    const list = await env.DATA.list({ prefix: 'tick:', cursor });
+    for (const k of list.keys) {
+      const raw = await env.DATA.get(k.name);
+      if (raw) ticks[k.name.slice('tick:'.length)] = JSON.parse(raw);
+    }
+    if (list.list_complete) break;
+    cursor = list.cursor;
+  }
+  return ticks;
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'content-type': 'application/json' }
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // Public: read the current sheet + all check marks
-    if (url.pathname === '/api/state' && request.method === 'GET') {
-      const raw = await env.DATA.get('state');
-      return new Response(raw || 'null', {
-        headers: { 'content-type': 'application/json' }
-      });
-    }
+    try {
+      // Public: read the current sheet + all check marks
+      if (url.pathname === '/api/state' && request.method === 'GET') {
+        const dataset = await getDataset(env);
+        const ticks = await getAllTicks(env);
+        return json({
+          headers: dataset ? dataset.headers : [],
+          rows: dataset ? dataset.rows : [],
+          tickColIndex: dataset ? dataset.tickColIndex : -1,
+          ticks
+        });
+      }
 
-    // Replace the sheet (headers/rows/check column)
-    if (url.pathname === '/api/dataset' && request.method === 'POST') {
-      const body = await request.json();
-      const rawExisting = await env.DATA.get('state');
-      const existing = rawExisting ? JSON.parse(rawExisting) : { ticks: {} };
-      const newState = {
-        headers: body.headers,
-        rows: body.rows,
-        tickColIndex: body.tickColIndex,
-        ticks: existing.ticks || {}
-      };
-      await env.DATA.put('state', JSON.stringify(newState));
-      return new Response('ok');
-    }
+      // Replace the sheet (headers/rows/check column) — its own key, never
+      // contends with tick writes
+      if (url.pathname === '/api/dataset' && request.method === 'POST') {
+        const body = await request.json();
+        await env.DATA.put('dataset', JSON.stringify({
+          headers: body.headers,
+          rows: body.rows,
+          tickColIndex: body.tickColIndex
+        }));
+        return json({ ok: true });
+      }
 
-    // Anyone with the link can toggle a check mark
-    if (url.pathname === '/api/tick' && request.method === 'POST') {
-      const body = await request.json();
-      const rawExisting = await env.DATA.get('state');
-      const existing = rawExisting ? JSON.parse(rawExisting) : { headers: [], rows: [], tickColIndex: -1, ticks: {} };
-      existing.ticks = existing.ticks || {};
-      existing.ticks[body.key] = { checked: body.checked, date: body.date };
-      await env.DATA.put('state', JSON.stringify(existing));
-      return new Response('ok');
-    }
+      // Toggle one row's check mark — each row has its own key, so ticking
+      // different rows never collides with each other or with a dataset save
+      if (url.pathname === '/api/tick' && request.method === 'POST') {
+        const body = await request.json();
+        await env.DATA.put('tick:' + body.key, JSON.stringify({
+          checked: body.checked,
+          date: body.date
+        }));
+        return json({ ok: true });
+      }
 
-    // Clear all check marks
-    if (url.pathname === '/api/reset' && request.method === 'POST') {
-      const rawExisting = await env.DATA.get('state');
-      const existing = rawExisting ? JSON.parse(rawExisting) : {};
-      existing.ticks = {};
-      await env.DATA.put('state', JSON.stringify(existing));
-      return new Response('ok');
-    }
+      // Clear all check marks
+      if (url.pathname === '/api/reset' && request.method === 'POST') {
+        let cursor;
+        for (;;) {
+          const list = await env.DATA.list({ prefix: 'tick:', cursor });
+          await Promise.all(list.keys.map(k => env.DATA.delete(k.name)));
+          if (list.list_complete) break;
+          cursor = list.cursor;
+        }
+        return json({ ok: true });
+      }
 
-    // Everything else: serve the static site
-    return env.ASSETS.fetch(request);
+      // Everything else: serve the static site
+      return env.ASSETS.fetch(request);
+    } catch (err) {
+      return json({ error: String(err && err.message || err) }, 500);
+    }
   }
 };
