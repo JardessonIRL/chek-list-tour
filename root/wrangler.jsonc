@@ -1,0 +1,16 @@
+{
+  "name": "misty-bonus-2590",
+  "compatibility_date": "2026-07-15",
+  "main": "src/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "DATA",
+      "id": "914fa3a494da4de49f3ddb106ae085d9"
+    }
+  ]
+}
