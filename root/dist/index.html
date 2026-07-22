@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Check List Tour</title>
+<title>checktourbo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -27,17 +27,8 @@
     min-height:100vh;
     padding: 40px 16px 80px;
   }
-  .wrap{
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .clip{
-    width: 140px;
-    height: 46px;
-    margin: 0 auto -24px;
-    position: relative;
-    z-index: 2;
-  }
+  .wrap{ max-width: 960px; margin: 0 auto; }
+  .clip{ width: 140px; height: 46px; margin: 0 auto -24px; position: relative; z-index: 2; }
   .board{
     background: var(--card);
     border: 1px solid var(--board-dark);
@@ -53,11 +44,7 @@
     margin: 0 0 4px;
     text-transform: uppercase;
   }
-  .subtitle{
-    color: var(--ink-soft);
-    font-size: 14px;
-    margin: 0 0 28px;
-  }
+  .subtitle{ color: var(--ink-soft); font-size: 14px; margin: 0 0 28px; }
   .drop{
     border: 2px dashed var(--board-dark);
     border-radius: 8px;
@@ -67,150 +54,106 @@
     transition: background 0.15s ease, border-color 0.15s ease;
     background: repeating-linear-gradient(0deg, transparent, transparent 27px, var(--paper-line) 28px);
   }
-  .drop:hover, .drop.dragover{
-    border-color: var(--stamp-green);
-    background: var(--stamp-green-bg);
-  }
+  .drop:hover, .drop.dragover{ border-color: var(--stamp-green); background: var(--stamp-green-bg); }
   .drop svg{ opacity:0.55; margin-bottom: 8px; }
   .drop p{ margin: 4px 0; font-size: 14px; color: var(--ink-soft); }
   .drop strong{ color: var(--ink); font-family: 'Courier New', monospace; }
   input[type=file]{ display:none; }
-  .controls{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-end;
-    margin-bottom: 22px;
-  }
+  .controls{ display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 22px; }
   .field{ display:flex; flex-direction:column; gap:6px; }
   .field label{
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--ink-soft);
-    font-family: 'Courier New', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--ink-soft); font-family: 'Courier New', monospace;
   }
-  select, .btn{
-    font-family: inherit;
-    font-size: 14px;
-    padding: 9px 12px;
-    border-radius: 5px;
-    border: 1px solid var(--board-dark);
-    background: var(--card);
-    color: var(--ink);
+  select, .btn, .search-input{
+    font-family: inherit; font-size: 14px; padding: 9px 12px;
+    border-radius: 5px; border: 1px solid var(--board-dark);
+    background: var(--card); color: var(--ink);
   }
   select{ min-width: 200px; cursor:pointer; }
-  .btn{
-    cursor: pointer;
-    background: var(--card);
-    transition: background 0.15s ease;
-  }
+  .btn{ cursor: pointer; background: var(--card); transition: background 0.15s ease; }
   .btn:hover{ background: var(--paper-line); }
   .btn.danger{ color: var(--stamp-red); border-color: var(--stamp-red); }
   .btn.danger:hover{ background: #FBEAE7; }
-  .fileinfo{
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin-bottom: 18px;
-  }
+  .fileinfo{ font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; }
   .fileinfo strong{ color: var(--ink); }
-  .table-scroll{
-    overflow-x: auto;
-    border: 1px solid var(--paper-line);
-    border-radius: 6px;
+  .search-wrap{ position: relative; margin-bottom: 16px; }
+  .search-input{ width: 100%; padding: 10px 14px 10px 36px; font-size: 15px; }
+  .search-wrap svg{
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    opacity: 0.5; pointer-events: none;
   }
-  table{
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 14px;
-  }
+  .search-count{ font-size: 12px; color: var(--ink-soft); margin: -8px 0 16px 2px; font-family: 'Courier New', monospace; }
+  .table-scroll{ overflow-x: auto; border: 1px solid var(--paper-line); border-radius: 6px; }
+  table{ border-collapse: collapse; width: 100%; font-size: 14px; }
   thead th{
-    background: var(--board);
-    color: var(--ink);
-    text-align: left;
-    padding: 10px 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
+    background: var(--board); color: var(--ink); text-align: left;
+    padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    position: sticky; top: 0;
   }
   thead th.tick-col{ text-align:center; }
-  tbody td{
-    padding: 9px 14px;
-    border-top: 1px solid var(--paper-line);
-    white-space: nowrap;
-  }
+  tbody td{ padding: 9px 14px; border-top: 1px solid var(--paper-line); white-space: nowrap; }
   tbody tr:nth-child(even){ background: #FBF8F0; }
   tbody tr.done td{ color: var(--ink-soft); }
-  td.tick-cell{ text-align:center; width: 90px; }
+  tbody tr.hidden-row{ display: none; }
+  mark{ background: #FCE79B; color: inherit; padding: 0 1px; border-radius: 2px; }
+  td.tick-cell{ text-align:center; width: 110px; }
   .stamp-box{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    position: relative;
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 30px; height: 30px; cursor: pointer; position: relative;
   }
   .stamp-box input{ display:none; }
   .stamp-mark{
-    width: 26px;
-    height: 26px;
-    border: 2px solid var(--stamp-red);
-    border-radius: 4px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition: transform 0.12s ease;
+    width: 26px; height: 26px; border: 2px solid var(--stamp-red); border-radius: 4px;
+    display:flex; align-items:center; justify-content:center; transition: transform 0.12s ease;
   }
-  .stamp-box input:checked + .stamp-mark{
-    border-color: var(--stamp-green);
-    transform: rotate(-6deg) scale(1.08);
+  .stamp-box input:checked + .stamp-mark{ border-color: var(--stamp-green); transform: rotate(-6deg) scale(1.08); }
+  .stamp-mark svg{ width: 16px; height:16px; opacity: 0; transform: scale(0.5); transition: opacity 0.12s ease, transform 0.12s ease; }
+  .stamp-box input:checked + .stamp-mark svg{ opacity: 1; transform: scale(1); }
+  .stamp-date{ display:block; font-size: 10px; color: var(--ink-soft); margin-top: 2px; font-family: 'Courier New', monospace; }
+  .qty-input-wrap{ display:flex; align-items:center; justify-content:center; gap: 6px; }
+  .qty-btn{
+    width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--board-dark);
+    background: var(--card); color: var(--ink); font-size: 16px; line-height: 1;
+    cursor: pointer; display:flex; align-items:center; justify-content:center;
+    font-family: 'Courier New', monospace; user-select: none;
   }
-  .stamp-mark svg{
-    width: 16px; height:16px;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: opacity 0.12s ease, transform 0.12s ease;
+  .qty-btn:hover:not(:disabled){ background: var(--paper-line); }
+  .qty-btn:disabled{ opacity: 0.35; cursor: default; }
+  .qty-value{
+    min-width: 22px; text-align:center; font-size: 14px; font-weight: bold;
+    font-family: 'Courier New', monospace; color: var(--ink);
   }
-  .stamp-box input:checked + .stamp-mark svg{
-    opacity: 1;
-    transform: scale(1);
+  .qty-value.full{ color: var(--stamp-green); }
+  .qty-input{
+    width: 52px; padding: 6px 4px; text-align:center; font-size: 14px;
+    border: 2px solid var(--board-dark); border-radius: 5px; font-family: 'Courier New', monospace;
   }
-  .stamp-date{
-    display:block;
-    font-size: 10px;
-    color: var(--ink-soft);
-    margin-top: 2px;
-    font-family: 'Courier New', monospace;
-  }
-  .empty{
-    text-align:center;
-    padding: 40px 10px;
-    color: var(--ink-soft);
-    font-size: 14px;
-  }
-  .footer-note{
-    margin-top: 18px;
-    font-size: 12px;
-    color: var(--ink-soft);
-    text-align:center;
-  }
-  .footer-note code{
-    background: var(--paper-line);
-    padding: 1px 5px;
-    border-radius: 3px;
-  }
-  .progress-line{
+  .qty-input.full{ border-color: var(--stamp-green); background: var(--stamp-green-bg); }
+  .qty-total{ font-size: 12px; color: var(--ink-soft); font-family: 'Courier New', monospace; }
+  .empty{ text-align:center; padding: 40px 10px; color: var(--ink-soft); font-size: 14px; }
+  .footer-note{ margin-top: 18px; font-size: 12px; color: var(--ink-soft); text-align:center; }
+  .footer-note code{ background: var(--paper-line); padding: 1px 5px; border-radius: 3px; }
+  .progress-line{ font-family: 'Courier New', monospace; font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; }
+  .progress-line strong{ color: var(--stamp-green); }
+  .all-done-banner{
+    background: var(--stamp-green-bg);
+    border: 1px solid var(--stamp-green);
+    color: var(--stamp-green);
     font-family: 'Courier New', monospace;
     font-size: 13px;
-    color: var(--ink-soft);
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 14px;
+    border-radius: 6px;
     margin-bottom: 14px;
+    animation: popIn 0.25s ease;
   }
-  .progress-line strong{ color: var(--stamp-green); }
+  @keyframes popIn{
+    from{ transform: scale(0.9); opacity: 0; }
+    to{ transform: scale(1); opacity: 1; }
+  }
 
   @media (max-width: 700px){
     body{ padding: 20px 8px 60px; }
@@ -224,55 +167,39 @@
     select{ min-width: 0; width: 100%; font-size: 16px; }
     .btn{ width: 100%; text-align: center; padding: 12px; }
     .fileinfo{ font-size: 12px; }
+    .search-input{ font-size: 16px; }
     .table-scroll{ border: none; overflow: visible; }
     table, thead, tbody, tr, td{ display: block; width: 100%; }
-    thead{
-      position: absolute;
-      width: 1px; height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-    }
+    thead{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     tbody tr{
-      position: relative;
-      background: var(--card);
-      border: 1px solid var(--paper-line);
-      border-radius: 10px;
-      margin-bottom: 12px;
-      padding: 14px 84px 14px 16px;
+      position: relative; background: var(--card); border: 1px solid var(--paper-line);
+      border-radius: 10px; margin-bottom: 12px; padding: 14px 100px 14px 16px;
     }
+    tbody tr.hidden-row{ display: none; }
     tbody tr.done{ background: var(--stamp-green-bg); }
     tbody td{
-      border-top: none;
-      padding: 5px 0;
-      white-space: normal;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 14px;
-      font-size: 15px;
-      word-break: break-word;
+      border-top: none; padding: 5px 0; white-space: normal; display: flex;
+      justify-content: space-between; align-items: flex-start; gap: 14px;
+      font-size: 15px; word-break: break-word;
     }
-    tbody td:not(.tick-cell)::before{
-      content: attr(data-label);
-      color: var(--ink-soft);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      font-family: 'Courier New', monospace;
-      flex-shrink: 0;
-      padding-top: 2px;
+    tbody td:not(.tick-cell)::before, tbody td.tick-cell-qty::before{
+      content: attr(data-label); color: var(--ink-soft); font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.4px; font-family: 'Courier New', monospace;
+      flex-shrink: 0; padding-top: 2px;
     }
-    td.tick-cell{
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: auto;
-      padding: 0;
-    }
+    tbody tr:not(.qty-row){ padding: 14px 100px 14px 16px; }
+    tbody tr.qty-row{ padding: 14px 16px; }
+    td.tick-cell:not(.tick-cell-qty){ position: absolute; top: 12px; right: 12px; width: auto; padding: 0; }
+    td.tick-cell-qty{ padding: 5px 0; }
     .stamp-box{ width: 46px; height: 46px; }
     .stamp-mark{ width: 40px; height: 40px; border-width: 2.5px; }
     .stamp-mark svg{ width: 22px; height: 22px; }
     .stamp-date{ position: absolute; top: 50px; right: 0; white-space: nowrap; }
+    .tick-cell-qty .stamp-date{ position: static; display: block; text-align: right; }
+    .qty-input-wrap{ flex-direction: row; gap: 8px; align-items: center; }
+    .qty-btn{ width: 34px; height: 34px; font-size: 20px; }
+    .qty-value{ font-size: 16px; min-width: 26px; }
+    .qty-total{ font-size: 12px; }
     .progress-line{ font-size: 12px; margin-bottom: 12px; }
   }
 </style>
@@ -284,8 +211,8 @@
     <rect x="55" y="14" width="30" height="20" rx="6" fill="#C9BFA5" stroke="#8B8168" stroke-width="2"/>
   </svg>
   <div class="board">
-    <h1>Check List Tour</h1>
-    <p class="subtitle" id="subtitle">Import the sheet and pick the column to check off. Marks are saved for everyone who opens the link.</p>
+    <h1>Check List Tour — Board</h1>
+    <p class="subtitle" id="subtitle">Import the sheet, pick the column to check off, and search anything inside it.</p>
 
     <div id="uploadArea" style="display:none;">
       <div class="drop" id="dropZone">
@@ -311,10 +238,26 @@
           <label for="colSelect">Column to check</label>
           <select id="colSelect"></select>
         </div>
-        <button class="btn danger" id="resetBtn">Clear all check marks</button>
+        <div class="field">
+          <label for="qtyColSelect">Quantity column (optional)</label>
+          <select id="qtyColSelect"></select>
+        </div>
+        <button class="btn danger" id="resetBtn">Clear all progress</button>
       </div>
 
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+        </svg>
+        <input type="text" class="search-input" id="searchInput" inputmode="numeric" pattern="[0-9]*" placeholder="Search anything in the sheet…">
+      </div>
+      <div class="search-count" id="searchCount"></div>
+
       <div class="progress-line" id="progressLine"></div>
+      <div class="all-done-banner" id="allDoneBanner" style="display:none;">
+        ✓ All items checked — this list is complete!
+      </div>
 
       <div class="table-scroll">
         <table id="dataTable"></table>
@@ -322,7 +265,7 @@
     </div>
 
     <p class="footer-note admin-only" id="footerAdminNote">This sheet stays saved even if you re-import it another day. The link with <code>?admin=1</code> gives upload access — only share that version with yourself, and share the plain link with everyone else.</p>
-    <p class="footer-note" id="footerViewerNote" style="display:none;">Your check marks are saved automatically.</p>
+    <p class="footer-note" id="footerViewerNote" style="display:none;">Your progress is saved automatically.</p>
   </div>
 </div>
 
@@ -330,8 +273,12 @@
 let headers = [];
 let rows = [];
 let tickColIndex = -1;
+let qtyColIndex = -1;
 let rowKeys = [];
 let allTicks = {};
+let rowRefs = [];
+let pollTimer = null;
+let saveTimers = {};
 
 const fileInput = document.getElementById('fileInput');
 const dropZone = document.getElementById('dropZone');
@@ -341,11 +288,14 @@ const emptyState = document.getElementById('emptyState');
 const fileNameEl = document.getElementById('fileName');
 const rowCountEl = document.getElementById('rowCount');
 const colSelect = document.getElementById('colSelect');
+const qtyColSelect = document.getElementById('qtyColSelect');
 const resetBtn = document.getElementById('resetBtn');
 const changeFile = document.getElementById('changeFile');
 const progressLine = document.getElementById('progressLine');
 const subtitleEl = document.getElementById('subtitle');
 const footerViewerNote = document.getElementById('footerViewerNote');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
 
 const urlParams = new URLSearchParams(location.search);
 const isAdmin = urlParams.get('admin') === '1';
@@ -353,9 +303,8 @@ const isAdmin = urlParams.get('admin') === '1';
 if (!isAdmin){
   document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
   footerViewerNote.style.display = 'block';
-  subtitleEl.textContent = 'Check off the items below. Your marks are saved automatically.';
+  subtitleEl.textContent = 'Check off or update quantities below, and search anything in the list.';
 }
-
 
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -450,29 +399,59 @@ async function applyParsedData(parsedHeaders, parsedRows, displayName){
   uploadArea.style.display = 'none';
   emptyState.style.display = 'none';
   afterUpload.style.display = 'block';
-  setupColumnSelect();
+  setupColumnSelects();
   buildKeys();
   const ok = await saveDataset();
-  if (ok) renderTable();
+  if (ok){
+    renderTable();
+    startPolling();
+  }
 }
 
-function setupColumnSelect(presetIndex){
+function setupColumnSelects(presetTickIndex, presetQtyIndex){
   colSelect.innerHTML = '';
+  qtyColSelect.innerHTML = '';
+
+  const noneOpt = document.createElement('option');
+  noneOpt.value = '-1';
+  noneOpt.textContent = '(none — always a checkbox)';
+  qtyColSelect.appendChild(noneOpt);
+
   headers.forEach((h, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = h;
-    colSelect.appendChild(opt);
+    const opt1 = document.createElement('option');
+    opt1.value = i;
+    opt1.textContent = h;
+    colSelect.appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = i;
+    opt2.textContent = h;
+    qtyColSelect.appendChild(opt2);
   });
-  if (typeof presetIndex === 'number'){
-    tickColIndex = presetIndex;
+
+  if (typeof presetTickIndex === 'number'){
+    tickColIndex = presetTickIndex;
   } else {
     const guessIdx = headers.findIndex(h => /check|tick|done|complete|status|ok\b/i.test(h));
     tickColIndex = guessIdx >= 0 ? guessIdx : headers.length - 1;
   }
   colSelect.value = tickColIndex;
+
+  if (typeof presetQtyIndex === 'number'){
+    qtyColIndex = presetQtyIndex;
+  } else {
+    const qtyGuess = headers.findIndex(h => /qty|quantity|quant/i.test(h));
+    qtyColIndex = qtyGuess >= 0 ? qtyGuess : -1;
+  }
+  qtyColSelect.value = qtyColIndex;
+
   colSelect.onchange = async () => {
     tickColIndex = parseInt(colSelect.value, 10);
+    const ok = await saveDataset();
+    if (ok) renderTable();
+  };
+  qtyColSelect.onchange = async () => {
+    qtyColIndex = parseInt(qtyColSelect.value, 10);
     const ok = await saveDataset();
     if (ok) renderTable();
   };
@@ -496,6 +475,15 @@ function buildKeys(){
   });
 }
 
+function parseExpectedQty(row){
+  if (qtyColIndex < 0 || !row[qtyColIndex] && row[qtyColIndex] !== 0) return 1;
+  const raw = String(row[qtyColIndex]).trim();
+  if (!raw) return 1;
+  const normalized = raw.replace(/\./g, '').replace(',', '.').replace(/[^0-9.\-]/g, '');
+  const n = Math.round(Math.abs(parseFloat(normalized)));
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
 async function loadState(){
   try{
     const res = await fetch('/api/state');
@@ -507,12 +495,23 @@ async function loadState(){
   }
 }
 
+async function loadTicksOnly(){
+  try{
+    const res = await fetch('/api/ticks');
+    if (!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    console.error('Could not load ticks', e);
+    return null;
+  }
+}
+
 async function saveDataset(){
   try{
     const res = await fetch('/api/dataset', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ headers, rows, tickColIndex })
+      body: JSON.stringify({ headers, rows, tickColIndex, qtyColIndex })
     });
     if (!res.ok){
       alert('Could not save the sheet. Please try again.');
@@ -526,15 +525,33 @@ async function saveDataset(){
   }
 }
 
-async function saveTick(key, value){
+async function saveTickSet(key, value){
   try{
-    await fetch('/api/tick', {
+    const res = await fetch('/api/tick', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ key, checked: value.checked, date: value.date })
+      body: JSON.stringify({ key, mode: 'set', value: value.qty })
     });
+    if (!res.ok) return null;
+    return await res.json(); // { ok, qty, date, ticks }
   }catch(e){
-    console.error('Failed to save check mark', e);
+    console.error('Failed to save progress', e);
+    return null;
+  }
+}
+
+async function saveTickDelta(key, delta, expected){
+  try{
+    const res = await fetch('/api/tick', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key, mode: 'delta', value: delta, expected })
+    });
+    if (!res.ok) return null;
+    return await res.json(); // { ok, qty, date, ticks } — the server's authoritative value
+  }catch(e){
+    console.error('Failed to save progress', e);
+    return null;
   }
 }
 
@@ -549,16 +566,48 @@ async function resetAllTicks(){
 }
 
 function updateProgress(){
-  const boxes = document.querySelectorAll('.stamp-box input');
-  const total = boxes.length;
-  let checked = 0;
-  boxes.forEach(b => { if (b.checked) checked++; });
-  progressLine.innerHTML = '<strong>' + checked + '</strong> of ' + total + ' checked';
+  let doneRows = 0;
+  rows.forEach((row, ri) => {
+    const expected = parseExpectedQty(row);
+    const state = allTicks[rowKeys[ri]];
+    const done = state ? (state.qty || 0) : 0;
+    if (done >= expected) doneRows++;
+  });
+  progressLine.innerHTML = '<strong>' + doneRows + '</strong> of ' + rows.length + ' complete';
+
+  const allDoneBanner = document.getElementById('allDoneBanner');
+  const isAllDone = rows.length > 0 && doneRows === rows.length;
+  allDoneBanner.style.display = isAllDone ? 'block' : 'none';
 }
+
+function applySearchFilter(){
+  const term = searchInput.value.trim().toLowerCase();
+  const trs = document.querySelectorAll('#dataTable tbody tr');
+  let visible = 0;
+  let matches = 0;
+  trs.forEach(tr => {
+    const text = tr.getAttribute('data-search') || '';
+    const isComplete = tr.getAttribute('data-complete') === '1';
+    const matchesTerm = !term || text.includes(term);
+    // With no search: hide completed items to keep the list light.
+    // With a search: show anything matching, even if already checked —
+    // that's how a checked item can be found again and un-checked.
+    const show = term ? matchesTerm : (matchesTerm && !isComplete);
+    tr.classList.toggle('hidden-row', !show);
+    if (show) visible++;
+    if (term && matchesTerm) matches++;
+  });
+  searchCount.textContent = term
+    ? (matches + ' of ' + rows.length + ' rows match')
+    : 'Checked items are hidden — search to find and undo one.';
+}
+
+searchInput.addEventListener('input', applySearchFilter);
 
 function renderTable(){
   const table = document.getElementById('dataTable');
   table.innerHTML = '';
+  rowRefs = [];
 
   const thead = document.createElement('thead');
   const trh = document.createElement('tr');
@@ -576,60 +625,242 @@ function renderTable(){
 
   rows.forEach((row, ri) => {
     const tr = document.createElement('tr');
+    const expected = parseExpectedQty(row);
     const state = allTicks[rowKeys[ri]];
-    if (state && state.checked) tr.classList.add('done');
+    const done = state ? (state.qty || 0) : 0;
+    const isComplete = done >= expected;
+    if (isComplete) tr.classList.add('done');
+    if (expected > 1) tr.classList.add('qty-row');
+    tr.setAttribute('data-complete', isComplete ? '1' : '0');
+    tr.setAttribute('data-search', row.map(c => String(c ?? '')).join(' ').toLowerCase());
+
+    const ref = { tr, expected, control: null, td: null };
 
     row.forEach((cell, ci) => {
       const td = document.createElement('td');
       td.setAttribute('data-label', headers[ci]);
       if (ci === tickColIndex){
         td.classList.add('tick-cell');
-        const label = document.createElement('label');
-        label.className = 'stamp-box';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = !!(state && state.checked);
-        const mark = document.createElement('span');
-        mark.className = 'stamp-mark';
-        mark.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        label.appendChild(input);
-        label.appendChild(mark);
-        td.appendChild(label);
-        if (state && state.checked && state.date){
-          const dateEl = document.createElement('span');
-          dateEl.className = 'stamp-date';
-          dateEl.textContent = state.date;
-          td.appendChild(dateEl);
-        }
-        input.addEventListener('change', async () => {
-          const checked = input.checked;
-          const dateStr = checked ? new Date().toLocaleDateString('en-US') : '';
-          allTicks[rowKeys[ri]] = { checked, date: dateStr };
-          await saveTick(rowKeys[ri], allTicks[rowKeys[ri]]);
-          tr.classList.toggle('done', checked);
-          const existingDate = td.querySelector('.stamp-date');
-          if (existingDate) existingDate.remove();
-          if (checked){
+        if (expected > 1) td.classList.add('tick-cell-qty');
+        ref.td = td;
+
+        if (expected <= 1){
+          const label = document.createElement('label');
+          label.className = 'stamp-box';
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.checked = done >= 1;
+          const mark = document.createElement('span');
+          mark.className = 'stamp-mark';
+          mark.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          label.appendChild(input);
+          label.appendChild(mark);
+          td.appendChild(label);
+          if (done >= 1 && state && state.date){
             const dateEl = document.createElement('span');
             dateEl.className = 'stamp-date';
-            dateEl.textContent = dateStr;
+            dateEl.textContent = state.date;
             td.appendChild(dateEl);
           }
-          updateProgress();
-        });
+          input.addEventListener('change', async () => {
+            const newQty = input.checked ? 1 : 0;
+            const dateStr = input.checked ? new Date().toLocaleDateString('en-US') : '';
+            allTicks[rowKeys[ri]] = { qty: newQty, date: dateStr };
+            ref.lastEditAt = Date.now();
+            tr.classList.toggle('done', newQty >= 1);
+            tr.setAttribute('data-complete', newQty >= 1 ? '1' : '0');
+            const existingDate = td.querySelector('.stamp-date');
+            if (existingDate) existingDate.remove();
+            if (newQty >= 1){
+              const dateEl = document.createElement('span');
+              dateEl.className = 'stamp-date';
+              dateEl.textContent = dateStr;
+              td.appendChild(dateEl);
+            }
+            updateProgress();
+            applySearchFilter();
+            const result = await saveTickSet(rowKeys[ri], allTicks[rowKeys[ri]]);
+            if (result && result.ticks) applyRemoteState(result.ticks);
+          });
+          ref.control = input;
+        } else {
+          const wrap = document.createElement('div');
+          wrap.className = 'qty-input-wrap';
+
+          const minusBtn = document.createElement('button');
+          minusBtn.type = 'button';
+          minusBtn.className = 'qty-btn';
+          minusBtn.textContent = '−';
+
+          const valueEl = document.createElement('span');
+          valueEl.className = 'qty-value' + (done >= expected ? ' full' : '');
+          valueEl.textContent = String(done);
+
+          const plusBtn = document.createElement('button');
+          plusBtn.type = 'button';
+          plusBtn.className = 'qty-btn';
+          plusBtn.textContent = '+';
+
+          const totalLabel = document.createElement('span');
+          totalLabel.className = 'qty-total';
+          totalLabel.textContent = '/ ' + expected;
+
+          wrap.appendChild(minusBtn);
+          wrap.appendChild(valueEl);
+          wrap.appendChild(plusBtn);
+          wrap.appendChild(totalLabel);
+          td.appendChild(wrap);
+          if (done >= 1 && state && state.date){
+            const dateEl = document.createElement('span');
+            dateEl.className = 'stamp-date';
+            dateEl.textContent = state.date;
+            td.appendChild(dateEl);
+          }
+
+          let currentVal = done;
+          let pendingDelta = 0;
+
+          const applyQtyUI = (val) => {
+            valueEl.textContent = String(val);
+            valueEl.classList.toggle('full', val >= expected);
+            minusBtn.disabled = val <= 0;
+            plusBtn.disabled = val >= expected;
+            const isComplete = val >= expected;
+            tr.classList.toggle('done', isComplete);
+            tr.setAttribute('data-complete', isComplete ? '1' : '0');
+            applySearchFilter();
+          };
+          applyQtyUI(currentVal);
+
+          const setDateLabel = (dateStr) => {
+            const existingDate = td.querySelector('.stamp-date');
+            if (existingDate) existingDate.remove();
+            if (dateStr){
+              const dateEl = document.createElement('span');
+              dateEl.className = 'stamp-date';
+              dateEl.textContent = dateStr;
+              td.appendChild(dateEl);
+            }
+          };
+
+          const flushDelta = () => {
+            if (saveTimers[ri]) clearTimeout(saveTimers[ri]);
+            saveTimers[ri] = setTimeout(async () => {
+              const delta = pendingDelta;
+              pendingDelta = 0;
+              if (delta === 0) return;
+              // The server applies this delta atomically (Durable Object)
+              // and tells us the real, authoritative result — two people
+              // clicking +1 at the same moment can never cancel each
+              // other out, unlike sending an absolute number.
+              const result = await saveTickDelta(rowKeys[ri], delta, expected);
+              if (result && typeof result.qty === 'number'){
+                currentVal = result.qty;
+                allTicks[rowKeys[ri]] = { qty: result.qty, date: result.date };
+                applyQtyUI(currentVal);
+                setDateLabel(result.date);
+                updateProgress();
+              }
+              if (result && result.ticks) applyRemoteState(result.ticks);
+            }, 450);
+          };
+
+          const bump = (amount) => {
+            const next = currentVal + amount;
+            if (next < 0 || next > expected) return;
+            currentVal = next;
+            pendingDelta += amount;
+            allTicks[rowKeys[ri]] = { qty: currentVal, date: currentVal > 0 ? new Date().toLocaleDateString('en-US') : '' };
+            ref.lastEditAt = Date.now();
+            applyQtyUI(currentVal);
+            setDateLabel(allTicks[rowKeys[ri]].date);
+            updateProgress();
+            flushDelta();
+          };
+
+          minusBtn.addEventListener('click', () => bump(-1));
+          plusBtn.addEventListener('click', () => bump(1));
+
+          ref.control = wrap;
+          ref.getQtyVal = () => currentVal;
+          ref.setQtyVal = (val) => { currentVal = val; applyQtyUI(val); };
+        }
       } else {
         td.textContent = cell;
       }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
+    rowRefs.push(ref);
   });
 
   updateProgress();
+  applySearchFilter();
 }
 
+function applyRemoteState(newTicks){
+  let changed = false;
+  rows.forEach((row, ri) => {
+    const key = rowKeys[ri];
+    const incoming = newTicks[key] || { qty: 0, date: '' };
+    const current = allTicks[key] || { qty: 0, date: '' };
+    if (incoming.qty === current.qty && incoming.date === current.date) return;
+
+    const ref = rowRefs[ri];
+    if (!ref) { allTicks[key] = incoming; changed = true; return; }
+    if (document.activeElement === ref.control) return; // don't clobber active typing
+    if (ref.lastEditAt && Date.now() - ref.lastEditAt < 2000) return; // don't clobber a save in flight
+
+    allTicks[key] = incoming;
+    changed = true;
+
+    const isComplete = incoming.qty >= ref.expected;
+    ref.tr.classList.toggle('done', isComplete);
+    ref.tr.setAttribute('data-complete', isComplete ? '1' : '0');
+
+    if (ref.control.type === 'checkbox'){
+      ref.control.checked = incoming.qty >= 1;
+    } else if (ref.setQtyVal){
+      ref.setQtyVal(incoming.qty);
+    }
+
+    const existingDate = ref.td.querySelector('.stamp-date');
+    if (existingDate) existingDate.remove();
+    if (incoming.qty > 0 && incoming.date){
+      const dateEl = document.createElement('span');
+      dateEl.className = 'stamp-date';
+      dateEl.textContent = incoming.date;
+      ref.td.appendChild(dateEl);
+    }
+  });
+  if (changed){
+    updateProgress();
+    applySearchFilter();
+  }
+}
+
+async function pollForUpdates(){
+  if (document.hidden) return;
+  const data = await loadTicksOnly();
+  if (data && data.ticks) applyRemoteState(data.ticks);
+}
+
+async function refreshAfterEdit(){
+  const data = await loadTicksOnly();
+  if (data && data.ticks) applyRemoteState(data.ticks);
+}
+
+function startPolling(){
+  // No more timer-based polling — refresh happens right after a check
+  // or quantity change instead (see refreshAfterEdit below), and when the
+  // tab regains focus. This avoids constant background requests.
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) pollForUpdates();
+});
+
 resetBtn.addEventListener('click', async () => {
-  if (!confirm('This clears every check mark saved here (for everyone using this page). Continue?')) return;
+  if (!confirm('This clears every check mark and quantity saved here (for everyone using this page). Continue?')) return;
   const ok = await resetAllTicks();
   if (ok){
     allTicks = {};
@@ -649,12 +880,14 @@ async function init(){
     if (isAdmin){
       fileNameEl.textContent = '(current sheet)';
       rowCountEl.textContent = rows.length;
-      setupColumnSelect(state.tickColIndex);
+      setupColumnSelects(state.tickColIndex, state.qtyColIndex);
     } else {
       tickColIndex = state.tickColIndex;
+      qtyColIndex = state.qtyColIndex;
     }
     buildKeys();
     renderTable();
+    startPolling();
   } else if (isAdmin){
     uploadArea.style.display = 'block';
   } else {
